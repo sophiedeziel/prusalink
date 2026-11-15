@@ -224,6 +224,16 @@ RSpec.describe Prusalink::Files do
       ).to have_been_made
     end
 
+    it "returns true when the printer answers with the uploaded file's JSON, like MK4, XL and MINI firmware" do
+      stub_request(:put, upload_url).to_return(
+        status: 201,
+        headers: { "Content-Type" => "application/json" },
+        body: { name: "TEST~1.GCO", ro: false, type: "PRINT_FILE", display_name: "test.gcode" }.to_json
+      )
+
+      expect(described_class.upload(gcode_path, storage: "usb", path: "my prints/test.gcode")).to be(true)
+    end
+
     it "closes the file it opened" do
       opened = nil
       allow(File).to receive(:open).and_wrap_original do |original, *args, &block|

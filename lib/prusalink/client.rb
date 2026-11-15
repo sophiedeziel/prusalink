@@ -86,6 +86,7 @@ module Prusalink
     # @raise [Exceptions::Error] a subclass matching the HTTP status when the request fails
     # @raise [Exceptions::TimeoutError] if the printer doesn't respond within the configured timeouts
     # @raise [Exceptions::ConnectionError] if the printer can't be reached
+    # @raise [Exceptions::InvalidResponseError] if the printer answers with invalid JSON
     sig do
       params(
         path: String,
@@ -158,12 +159,15 @@ module Prusalink
       return response.body.to_s unless parsed.is_a?(Hash)
 
       [parsed[:title], parsed[:text]].compact.join(": ").presence || response.body.to_s
-    rescue JSON::ParserError
+    rescue Exceptions::InvalidResponseError
       response.body.to_s
     end
 
     def parse_json(body)
       transform_keys(JSON.parse(body))
+    rescue JSON::ParserError => e
+      # Seen on XL firmware: the job's JSON ends with a trailing comma when its file was deleted
+      raise Exceptions::InvalidResponseError, "The printer answered with invalid JSON (#{e.message}): #{body}"
     end
 
     def transform_keys(obj)

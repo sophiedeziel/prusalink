@@ -85,5 +85,19 @@ RSpec.describe Prusalink::Info do
 
       it { expect { described_class.get }.to raise_error(Prusalink::Exceptions::NotFoundError) }
     end
+
+    context "with a real printer", vcr: { cassette_name: "info/get" } do
+      use_prusalink_server
+
+      it "reads the printer's information" do
+        expect(described_class.get).to have_attributes(
+          hostname: a_kind_of(String),
+          nozzle_diameter: a_kind_of(Float),
+          min_extrusion_temp: a_kind_of(Integer),
+          serial: a_kind_of(String),
+          mmu: false
+        )
+      end
+    end
   end
 end

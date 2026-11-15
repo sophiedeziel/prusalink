@@ -24,9 +24,9 @@ Most specs stub HTTP with WebMock. In those specs, `use_stubbed_printer` configu
 ### Recording VCR cassettes against a real printer
 
 1. Copy `.env.example` to `.env` and set `PRUSALINK_HOST`, `PRUSALINK_USERNAME` and `PRUSALINK_PASSWORD`.
-2. Add `use_prusalink_server`, a `vcr: { cassette_name: "status/get" }` option, and the `:wip` tag to the example:
+2. In the class's spec, next to its WebMock examples, add a `context "with a real printer"` with `use_prusalink_server`, a `vcr:` option named after the class and method, and the `:wip` tag:
    ```ruby
-   describe ".get", :wip, vcr: { cassette_name: "status/get" } do
+   context "with a real printer", :wip, vcr: { cassette_name: "status/get" } do
      use_prusalink_server
      # ...
    end
@@ -36,7 +36,7 @@ Most specs stub HTTP with WebMock. In those specs, `use_stubbed_printer` configu
 
 Tests that change printer state, like uploading or deleting files, should do their own setup and teardown. That way you can delete a cassette and record it again.
 
-VCR replaces the host, password and username with `<HOST>`, `<PASSWORD>` and `<USERNAME>`, the printer's serial number with `<SERIAL>`, and the hash in Digest `Authorization` headers with `<DIGEST>` (with the nonce, it would be enough to brute-force the password). A spec in `spec/integration/printer_spec.rb` fails if a cassette contains a serial number or a Digest hash. Cassettes record the 401 challenge and the signed retry.
+VCR replaces the host, password and username with `<HOST>`, `<PASSWORD>` and `<USERNAME>`, the printer's serial number with `<SERIAL>`, and the hash in Digest `Authorization` headers with `<DIGEST>` (with the nonce, it would be enough to brute-force the password). `spec/integration/cassettes_spec.rb` fails if a cassette contains a serial number or a Digest hash. Cassettes record the 401 challenge and the signed retry. The cassettes were recorded on a Prusa XL while it was idle. Its USB drive had an empty `Single-Tool` folder and the SmartTemperatureTower calibration print at its root.
 
 ## Quality gates
 

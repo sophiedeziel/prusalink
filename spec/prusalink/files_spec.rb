@@ -4,6 +4,9 @@
 RSpec.describe Prusalink::Files do
   use_stubbed_printer
 
+  # A public calibration print at the root of the USB drive the cassettes were recorded with
+  def calibration_print = "SmartTemperatureTower_PLA_180-225_0.4n_0.2mm_PLA_XLIS_1h42m.bgcode"
+
   let(:base_url) { "http://printer.test/api/v1/files" }
   let(:gcode_path) { File.expand_path("../files/test.gcode", __dir__) }
 
@@ -148,6 +151,54 @@ RSpec.describe Prusalink::Files do
 
       expect { described_class.get(storage: "usb", path: "missing.gcode") }
         .to raise_error(Prusalink::Exceptions::NotFoundError)
+    end
+
+    context "with a real printer, on a file", vcr: { cassette_name: "files/get_file" } do
+      subject(:file) { described_class.get(storage: "usb", path: calibration_print) }
+
+      use_prusalink_server
+
+      it "builds a print file with its long and 8.3 short names" do
+        expect(file).to be_a(Prusalink::Files::File)
+        expect(file).to have_attributes(
+          name: "SMARTT~1.BGC",
+          display_name: calibration_print,
+          file_type: "PRINT_FILE",
+          read_only: false,
+          size: a_kind_of(Integer),
+          m_timestamp: a_kind_of(Integer),
+          extra: nil
+        )
+        expect(file).to be_print_file
+      end
+
+      it "links to the thumbnails and the download" do
+        expect(file.refs).to have_attributes(
+          icon: "/thumb/s/usb/SMARTT~1.BGC",
+          thumbnail: "/thumb/l/usb/SMARTT~1.BGC",
+          download: "/usb/SMARTT~1.BGC"
+        )
+      end
+    end
+
+    context "with a real printer, on a folder", vcr: { cassette_name: "files/get_folder" } do
+      use_prusalink_server
+
+      it "builds a folder named after its 8.3 short name" do
+        folder = described_class.get(storage: "usb", path: "Single-Tool")
+
+        expect(folder).to be_a(Prusalink::Files::Folder)
+        expect(folder).to have_attributes(name: "SINGLE~7", read_only: false, children: [], extra: nil)
+      end
+    end
+
+    context "with a real printer, on a missing file", vcr: { cassette_name: "files/get_missing" } do
+      use_prusalink_server
+
+      it "raises NotFoundError" do
+        expect { described_class.get(storage: "usb", path: "missing.bgcode") }
+          .to raise_error(Prusalink::Exceptions::NotFoundError)
+      end
     end
   end
 
@@ -301,6 +352,22 @@ RSpec.describe Prusalink::Files do
       expect { described_class.exists?(storage: "usb", path: "benchy.gcode") }
         .to raise_error(Prusalink::Exceptions::ConflictError)
     end
+
+    context "with a real printer, on a file", vcr: { cassette_name: "files/exists" } do
+      use_prusalink_server
+
+      it "is true (HEAD answered 200)" do
+        expect(described_class.exists?(storage: "usb", path: calibration_print)).to be(true)
+      end
+    end
+
+    context "with a real printer, on a missing file", vcr: { cassette_name: "files/exists_missing" } do
+      use_prusalink_server
+
+      it "is false (HEAD answered 404)" do
+        expect(described_class.exists?(storage: "usb", path: "missing.bgcode")).to be(false)
+      end
+    end
   end
 
   describe ".info" do
@@ -340,6 +407,15 @@ RSpec.describe Prusalink::Files do
 
       expect { described_class.info(storage: "usb", path: "missing.gcode") }
         .to raise_error(Prusalink::Exceptions::NotFoundError)
+    end
+
+    context "with a real printer", vcr: { cassette_name: "files/info" } do
+      use_prusalink_server
+
+      it "reads the Read-Only and Currently-Printing headers" do
+        expect(described_class.info(storage: "usb", path: calibration_print))
+          .to eq(read_only: false, currently_printed: false)
+      end
     end
   end
 end

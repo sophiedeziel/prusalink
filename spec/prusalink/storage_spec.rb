@@ -72,6 +72,16 @@ RSpec.describe Prusalink::Storage do
         expect(storages).to eq([])
       end
     end
+
+    context "with a real printer", vcr: { cassette_name: "storage/list" } do
+      use_prusalink_server
+
+      it "lists the USB drive" do
+        expect(storages).to contain_exactly(
+          have_attributes(name: "usb", storage_type: "USB", path: "/usb/", available?: true, read_only?: false)
+        )
+      end
+    end
   end
 
   describe "#available? and #read_only?" do

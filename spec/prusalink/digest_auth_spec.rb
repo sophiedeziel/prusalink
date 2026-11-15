@@ -123,4 +123,12 @@ RSpec.describe Prusalink::DigestAuth do
     expect { client.request("/api/version") }.to raise_error(Prusalink::Exceptions::AuthenticationError)
     expect(a_request(:get, url)).to have_been_made.once
   end
+
+  context "with a real printer and a wrong password", vcr: { cassette_name: "digest_auth/wrong_password" } do
+    before { Prusalink.configure(host: prusalink_host, username: prusalink_username, password: "wrong-password") }
+
+    it "answers the challenge once, then raises AuthenticationError" do
+      expect { Prusalink::ServerVersion.get }.to raise_error(Prusalink::Exceptions::AuthenticationError)
+    end
+  end
 end

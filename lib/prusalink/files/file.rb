@@ -56,7 +56,8 @@ module Prusalink
 
       deserialize_config do
         nested :refs, Files::Refs
-        rename type: :file_type
+        # MK4, XL and MINI firmware send `ro` instead of the OpenAPI spec's `read_only`
+        rename type: :file_type, ro: :read_only
       end
 
       # Whether the file can be printed (G-code, binary G-code or SL1)

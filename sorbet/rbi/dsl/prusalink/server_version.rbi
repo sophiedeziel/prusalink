@@ -19,10 +19,19 @@ class Prusalink::ServerVersion
   def firmware; end
 
   sig { returns(T.nilable(::String)) }
+  def hostname; end
+
+  sig { returns(T.nilable(::Float)) }
+  def nozzle_diameter; end
+
+  sig { returns(T.nilable(::String)) }
   def printer; end
 
   sig { returns(T.nilable(::String)) }
   def sdk; end
+
+  sig { returns(T.nilable(::String)) }
+  def server; end
 
   sig { returns(T.nilable(::String)) }
   def text; end

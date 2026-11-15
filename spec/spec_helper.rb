@@ -36,10 +36,23 @@ RSpec.configure do |config|
   # Each example starts without a configured client
   config.before { Prusalink.client = nil }
 
-  # Tag an example with :wip to hit a real printer (and record its cassette)
+  # Tag an example with :wip to hit a real printer. If it also has a `vcr:` cassette, the cassette is
+  # (re)recorded. Without one, requests pass through and nothing is recorded.
   config.around(:example, :wip) do |example|
     WebMock.allow_net_connect!
-    VCR.turned_off(ignore_cassettes: true) { example.run }
+    if example.metadata[:vcr]
+      defaults = VCR.configuration.default_cassette_options
+      previous = defaults[:record]
+      defaults[:record] = :all
+      begin
+        example.run
+      ensure
+        defaults[:record] = previous
+      end
+    else
+      VCR.turned_off(ignore_cassettes: true) { example.run }
+    end
+  ensure
     WebMock.disable_net_connect!
     wip_count += 1
   end
@@ -75,6 +88,32 @@ VCR.configure do |config|
 
   config.filter_sensitive_data("<HOST>")     { prusalink_host }
   config.filter_sensitive_data("<PASSWORD>") { prusalink_password }
+  config.filter_sensitive_data("<USERNAME>") { prusalink_username }
+
+  # The serial number identifies the printer, so it never reaches a cassette
+  config.before_record do |interaction|
+    interaction.response.body = interaction.response.body.gsub(/("serial"\s*:\s*)"[^"]*"/, '\1"<SERIAL>"')
+  end
+
+  # A Digest response hash, next to the nonce, realm and username it was computed from, is enough to brute-force
+  # the password offline. Replays match on the method and URI only, so the hash isn't needed.
+  config.before_record do |interaction|
+    authorization = interaction.request.headers["Authorization"]
+    next unless authorization
+
+    interaction.request.headers["Authorization"] = authorization.map do |value|
+      value.gsub(/response="[^"]*"/, 'response="<DIGEST>"')
+    end
+  end
+end
+
+# VCR only honors `record_on_error: false` inside `VCR.use_cassette` blocks, not with `vcr:` metadata. Flag the
+# cassette as failed so a failing example doesn't save a half-recorded cassette. This hook is declared after
+# `configure_rspec_metadata!`, and RSpec runs `after` hooks in reverse order, so it runs before VCR ejects the cassette.
+RSpec.configure do |config|
+  config.after do |example|
+    VCR.current_cassette&.run_failed! if example.exception
+  end
 end
 
 # Configures the gem with the test printer before each example of the group

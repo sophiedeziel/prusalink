@@ -44,6 +44,20 @@ module Prusalink
     #   @return [Hash] Optional capabilities, e.g. { upload_by_put: true }
     auto_attr :capabilities, type: Hash
 
+    # The next three fields are sent by MK4, XL and MINI firmware, but aren't in the OpenAPI spec.
+
+    # @!attribute [r] server
+    #   @return [String] The PrusaLink server version, e.g. "2.1.2"
+    auto_attr :server, type: String
+
+    # @!attribute [r] nozzle_diameter
+    #   @return [Float] The nozzle's diameter, in millimeters
+    auto_attr :nozzle_diameter, type: Float
+
+    # @!attribute [r] hostname
+    #   @return [String] The printer's hostname on the network, e.g. "prusa-xl"
+    auto_attr :hostname, type: String
+
     # @!attribute [r] extra
     #   @return [Hash] Any additional fields returned by the API
     auto_attr :extra, type: Hash

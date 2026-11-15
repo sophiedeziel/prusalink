@@ -50,7 +50,8 @@ module Prusalink
       auto_initialize!
 
       deserialize_config do
-        rename type: :file_type
+        # MK4, XL and MINI firmware send `ro` instead of the OpenAPI spec's `read_only`
+        rename type: :file_type, ro: :read_only
         transform do |data|
           data[:children] = data[:children].map { |child| Files.build_entry(child) } if data[:children].is_a?(Array)
         end

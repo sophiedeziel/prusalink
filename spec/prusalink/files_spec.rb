@@ -320,6 +320,14 @@ RSpec.describe Prusalink::Files do
         .to eq(read_only: true, currently_printed: false)
     end
 
+    it "reads the Currently-Printing header that MK4, XL and MINI firmware send" do
+      stub_request(:head, "#{base_url}/usb/benchy.gcode")
+        .to_return(status: 200, headers: { "Read-Only" => "false", "Currently-Printing" => "true" })
+
+      expect(described_class.info(storage: "usb", path: "benchy.gcode"))
+        .to eq(read_only: false, currently_printed: true)
+    end
+
     it "returns false when the headers are missing" do
       stub_request(:head, "#{base_url}/usb/benchy.gcode").to_return(status: 200)
 

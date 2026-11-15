@@ -42,6 +42,18 @@ RSpec.describe Prusalink::Files::Folder do
     end
   end
 
+  describe ".deserialize with the `ro` key that MK4, XL and MINI firmware send" do
+    it "maps it to read_only, for the folder and its children" do
+      folder = described_class.deserialize(
+        name: "SINGLE~7", type: "FOLDER", ro: false,
+        children: [{ name: "SMARTT~1.BGC", type: "PRINT_FILE", ro: true }]
+      )
+
+      expect(folder).to have_attributes(read_only: false, extra: nil)
+      expect(folder.children.first).to have_attributes(read_only: true, extra: nil)
+    end
+  end
+
   describe "predicates" do
     subject(:folder) { described_class.deserialize(name: "sub", type: "FOLDER") }
 

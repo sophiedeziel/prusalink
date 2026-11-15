@@ -31,10 +31,12 @@ Most specs stub HTTP with WebMock. In those specs, `use_stubbed_printer` configu
      # ...
    end
    ```
-3. Run the spec. With `:wip`, the request reaches the printer.
-4. Remove the `:wip` tag. Future runs replay the cassette.
+3. Run the spec. With `:wip`, requests reach the printer and the cassette is recorded again from scratch (`record: :all`). If the spec fails, nothing is written. A `:wip` example without a `vcr:` option reaches the printer without recording anything.
+4. Remove the `:wip` tag. Future runs replay the cassette and never touch the network (`record: :none`), so CI doesn't need a printer.
 
-VCR filters `<HOST>` and `<PASSWORD>`. Digest `Authorization` headers contain a hash, not the password. Cassettes record the 401 challenge and the signed retry.
+Tests that change printer state, like uploading or deleting files, should do their own setup and teardown. That way you can delete a cassette and record it again.
+
+VCR replaces the host, password and username with `<HOST>`, `<PASSWORD>` and `<USERNAME>`, the printer's serial number with `<SERIAL>`, and the hash in Digest `Authorization` headers with `<DIGEST>` (with the nonce, it would be enough to brute-force the password). Cassettes record the 401 challenge and the signed retry.
 
 ## Quality gates
 

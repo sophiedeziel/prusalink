@@ -1,0 +1,53 @@
+name: Linter and Type Checker
+
+on:
+  push:
+    branches: [ 'main' ]
+  pull_request:
+    branches: [ 'main' ]
+
+jobs:
+  sorbet:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+
+    - name: Install Ruby and gems
+      uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9
+      with:
+        bundler-cache: true
+
+    - name: Run Sorbet
+      run: bundle exec srb tc
+
+  rubocop:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+
+    - name: Install Ruby and gems
+      uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9
+      with:
+        bundler-cache: true
+
+    - name: Run Rubocop
+      run: bundle exec rubocop --format github
+
+  tapioca:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+
+    - name: Install Ruby and gems
+      uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9
+      with:
+        bundler-cache: true
+
+    - name: Verify Tapioca RBI files are up to date
+      run: bin/tapioca dsl --verify

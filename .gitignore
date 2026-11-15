@@ -1,0 +1,19 @@
+/.bundle/
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+Gemfile.lock
+
+# Ignore local .env
+.env
+
+# rspec failure tracking
+.rspec_status
+.DS_Store
+
+# Agent scratch space
+/.context/

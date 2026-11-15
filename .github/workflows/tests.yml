@@ -1,0 +1,49 @@
+name: Tests
+
+on:
+  push:
+    branches: [ 'main' ]
+  pull_request:
+    branches: [ 'main' ]
+
+jobs:
+  RSpec:
+    runs-on: ubuntu-latest
+
+##
+# latest info: https://endoflife.date/ruby
+#
+# Ruby 4.0
+# status: normal maintenance
+# release date: 2025-12-25
+# EOL: 2029-03-31 (expected)
+
+# Ruby 3.4
+# status: normal maintenance
+# release date: 2024-12-25
+# EOL: 2028-03-31 (expected)
+
+# Ruby 3.3
+# status: normal maintenance
+# release date: 2023-12-25
+# EOL: 2027-03-31 (expected)
+
+    strategy:
+      matrix:
+        ruby:
+          - 4.0
+          - 3.4
+          - 3.3
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+
+    - name: Install Ruby and gems
+      uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+
+    - name: Run the default task
+      run: bundle exec rspec --format RSpec::Github::Formatter --format documentation

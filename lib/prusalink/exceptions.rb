@@ -28,6 +28,8 @@ module Prusalink
     class ServiceUnavailableError < Error; end
     # Any other unexpected HTTP status
     class UnknownError < Error; end
+    # The printer answered with a body that isn't valid JSON
+    class InvalidResponseError < Error; end
     # The printer could not be reached (connection refused, host unreachable, DNS failure, ...)
     class ConnectionError < Error; end
     # The printer did not open the connection or respond within the configured timeouts

@@ -69,6 +69,14 @@ RSpec.describe Prusalink::Transfer do
         expect(described_class.get).to be_nil
       end
     end
+
+    context "with a real printer", vcr: { cassette_name: "transfer/get_idle" } do
+      use_prusalink_server
+
+      it "returns nil when nothing is transferring (204 No Content)" do
+        expect(described_class.get).to be_nil
+      end
+    end
   end
 
   describe ".stop" do

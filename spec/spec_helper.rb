@@ -105,6 +105,9 @@ VCR.configure do |config|
       value.gsub(/response="[^"]*"/, 'response="<DIGEST>"')
     end
   end
+
+  # Requests made inside `unrecorded { ... }` reach the printer but stay out of the cassette
+  config.ignore_request { Thread.current[:prusalink_unrecorded] == true }
 end
 
 # VCR only honors `record_on_error: false` inside `VCR.use_cassette` blocks, not with `vcr:` metadata. Flag the
@@ -114,6 +117,21 @@ RSpec.configure do |config|
   config.after do |example|
     VCR.current_cassette&.run_failed! if example.exception
   end
+end
+
+# Whether the current example is recording its cassette (tagged :wip) rather than replaying it
+def recording_cassette?
+  VCR.current_cassette&.recording? == true
+end
+
+# Talks to the real printer with a client of its own, without recording anything. Used for the safety checks and
+# the cleanup around examples that change the printer's state, so they also run when the example fails.
+def unrecorded(&)
+  client = Prusalink::Client.new(host: prusalink_host, username: prusalink_username, password: prusalink_password)
+  Thread.current[:prusalink_unrecorded] = true
+  client.use(&)
+ensure
+  Thread.current[:prusalink_unrecorded] = false
 end
 
 # Configures the gem with the test printer before each example of the group

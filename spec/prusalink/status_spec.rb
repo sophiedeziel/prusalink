@@ -125,5 +125,28 @@ RSpec.describe Prusalink::Status do
 
       it { expect { described_class.get }.to raise_error(Prusalink::Exceptions::ConflictError) }
     end
+
+    context "with a real printer", vcr: { cassette_name: "status/get" } do
+      subject(:status) { described_class.get }
+
+      use_prusalink_server
+
+      it "reads the printer's state and temperatures" do
+        expect(status.printer).to have_attributes(
+          state: "IDLE",
+          temp_nozzle: a_kind_of(Float),
+          temp_bed: a_kind_of(Float),
+          speed: a_kind_of(Integer)
+        )
+      end
+
+      it "reads the current storage" do
+        expect(status.storage).to have_attributes(name: "usb", path: "/usb/", read_only: false)
+      end
+
+      it "has no job nor transfer while idle" do
+        expect(status).to have_attributes(job: nil, transfer: nil)
+      end
+    end
   end
 end

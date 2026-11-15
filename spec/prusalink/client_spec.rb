@@ -142,6 +142,15 @@ RSpec.describe Prusalink::Client do
 
       expect { client.request("/api/test") }.to raise_error(Prusalink::Exceptions::ConnectionError)
     end
+
+    it "raises InvalidResponseError with the body when the JSON is invalid" do
+      # What XL firmware answers for a job whose file was deleted
+      body = '{"id":225,"state":"PAUSED","file":{"name":"PRUSAL~1.GCO","path":"/usb",}}'
+      stub_request(:get, "#{host}/api/v1/job").to_return(status: 200, headers: json_headers, body: body)
+
+      expect { client.request("/api/v1/job") }
+        .to raise_error(Prusalink::Exceptions::InvalidResponseError, %r{invalid JSON.*"path":"/usb",\}\}})
+    end
   end
 
   describe "#head" do

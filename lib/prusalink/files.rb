@@ -168,7 +168,9 @@ module Prusalink
         raise ArgumentError, "Can't upload a #{io.class} without a known size. Pass a path, a File or a StringIO"
       end
 
-      put(path: path, params: io, headers: headers.merge("Content-Length" => T.unsafe(io).size.to_s))
+      # MK4, XL and MINI firmware answer 201 with the uploaded file's JSON, others answer without a body (true).
+      # Either way the upload succeeded, so this returns true rather than the JSON.
+      put(path: path, params: io, headers: headers.merge("Content-Length" => T.unsafe(io).size.to_s)).then { true }
     end
 
     # RFC 8941 boolean, the format PrusaLink expects in its headers

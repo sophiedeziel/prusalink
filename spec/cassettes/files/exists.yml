@@ -1,0 +1,66 @@
+---
+http_interactions:
+- request:
+    method: head
+    uri: "<HOST>/api/v1/files/usb/SmartTemperatureTower_PLA_180-225_0.4n_0.2mm_PLA_XLIS_1h42m.bgcode"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Faraday v2.15.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '43'
+      Www-Authenticate:
+      - Digest realm="Printer API", nonce="35a9aa8b00135028", stale=false
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Sun, 15 Nov 2026 06:56:56 GMT
+- request:
+    method: head
+    uri: "<HOST>/api/v1/files/usb/SmartTemperatureTower_PLA_180-225_0.4n_0.2mm_PLA_XLIS_1h42m.bgcode"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Faraday v2.15.1
+      Authorization:
+      - Digest username="<USERNAME>", realm="Printer API", algorithm=MD5, uri="/api/v1/files/usb/SmartTemperatureTower_PLA_180-225_0.4n_0.2mm_PLA_XLIS_1h42m.bgcode",
+        nonce="35a9aa8b00135028", response="<DIGEST>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Read-Only:
+      - 'false'
+      Currently-Printing:
+      - 'false'
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Sun, 15 Nov 2026 06:56:56 GMT
+recorded_with: VCR 6.4.1

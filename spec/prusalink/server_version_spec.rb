@@ -44,6 +44,25 @@ RSpec.describe Prusalink::ServerVersion do
     end
 
     it { is_expected.to be_upload_by_put }
+
+    context "with a real printer", vcr: { cassette_name: "server_version/get" } do
+      use_prusalink_server
+
+      it "reads the API version" do
+        expect(version).to have_attributes(text: "PrusaLink", api: a_string_starting_with("2."))
+      end
+
+      it "reads the fields the firmware adds to the spec" do
+        expect(version).to have_attributes(
+          server: a_kind_of(String),
+          nozzle_diameter: a_kind_of(Float),
+          hostname: a_kind_of(String),
+          extra: nil
+        )
+      end
+
+      it { is_expected.to be_upload_by_put }
+    end
   end
 
   describe "#upload_by_put?" do

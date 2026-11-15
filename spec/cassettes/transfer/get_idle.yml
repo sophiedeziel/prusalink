@@ -1,0 +1,64 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<HOST>/api/v1/transfer"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Faraday v2.15.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '43'
+      Www-Authenticate:
+      - Digest realm="Printer API", nonce="35a9aa8b00134f26", stale=false
+    body:
+      encoding: UTF-8
+      string: '{"title": "401: Unauthorized","message":""}'
+  recorded_at: Sun, 15 Nov 2026 06:52:38 GMT
+- request:
+    method: get
+    uri: "<HOST>/api/v1/transfer"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Faraday v2.15.1
+      Authorization:
+      - Digest username="<USERNAME>", realm="Printer API", algorithm=MD5, uri="/api/v1/transfer",
+        nonce="35a9aa8b00134f26", response="<DIGEST>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Content-Type:
+      - text/plain
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Sun, 15 Nov 2026 06:52:38 GMT
+recorded_with: VCR 6.4.1

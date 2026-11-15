@@ -36,7 +36,7 @@ Most specs stub HTTP with WebMock. In those specs, `use_stubbed_printer` configu
 
 Tests that change printer state, like uploading or deleting files, should do their own setup and teardown. That way you can delete a cassette and record it again.
 
-VCR replaces the host, password and username with `<HOST>`, `<PASSWORD>` and `<USERNAME>`, the printer's serial number with `<SERIAL>`, and the hash in Digest `Authorization` headers with `<DIGEST>` (with the nonce, it would be enough to brute-force the password). Cassettes record the 401 challenge and the signed retry.
+VCR replaces the host, password and username with `<HOST>`, `<PASSWORD>` and `<USERNAME>`, the printer's serial number with `<SERIAL>`, and the hash in Digest `Authorization` headers with `<DIGEST>` (with the nonce, it would be enough to brute-force the password). A spec in `spec/integration/printer_spec.rb` fails if a cassette contains a serial number or a Digest hash. Cassettes record the 401 challenge and the signed retry.
 
 ## Quality gates
 

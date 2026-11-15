@@ -134,7 +134,9 @@ module Prusalink
 
       {
         read_only: header_true?(headers["read-only"]),
-        currently_printed: header_true?(headers["currently-printed"])
+        # The OpenAPI spec and PrusaLink on a Raspberry Pi send Currently-Printed.
+        # MK4, XL and MINI firmware send Currently-Printing.
+        currently_printed: header_true?(headers["currently-printed"] || headers["currently-printing"])
       }
     end
 

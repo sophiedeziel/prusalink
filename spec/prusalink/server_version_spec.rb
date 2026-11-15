@@ -13,7 +13,10 @@ RSpec.describe Prusalink::ServerVersion do
       firmware: "6.1.3+8098",
       sdk: "0.7.0",
       capabilities: { "upload-by-put": true },
-      nozzle_diameter: 0.4
+      server: "2.1.2",
+      nozzle_diameter: 0.4,
+      hostname: "prusa-mk4",
+      new_field: 1
     }
   end
 
@@ -32,8 +35,12 @@ RSpec.describe Prusalink::ServerVersion do
                                          firmware: "6.1.3+8098", sdk: "0.7.0")
     end
 
+    it "exposes the fields MK4, XL and MINI firmware add" do
+      expect(version).to have_attributes(server: "2.1.2", nozzle_diameter: 0.4, hostname: "prusa-mk4")
+    end
+
     it "collects unknown fields into extra" do
-      expect(version.extra).to eq(nozzle_diameter: 0.4)
+      expect(version.extra).to eq(new_field: 1)
     end
 
     it { is_expected.to be_upload_by_put }

@@ -32,6 +32,14 @@ RSpec.describe Prusalink::Files::File do
     end
   end
 
+  describe ".deserialize with the `ro` key that MK4, XL and MINI firmware send" do
+    it "maps it to read_only" do
+      file = described_class.deserialize(name: "SMARTT~1.BGC", type: "PRINT_FILE", ro: true)
+
+      expect(file).to have_attributes(read_only: true, extra: nil)
+    end
+  end
+
   describe "predicates" do
     it "recognizes a print file" do
       file = described_class.deserialize(name: "a.gcode", type: "PRINT_FILE")

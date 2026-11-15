@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-15
+
 - Fix `Files::File#read_only` and `Files::Folder#read_only`, which were always `nil` on MK4, XL and MINI firmware. It sends `ro` instead of `read_only`
 - Fix `Files.info` reporting `currently_printed: false` on MK4, XL and MINI firmware, which sends a `Currently-Printing` header instead of `Currently-Printed`
 - Fix `Files.upload` raising a Sorbet `TypeError` on MK4, XL and MINI firmware, which answers with the uploaded file's JSON. It returns `true` again

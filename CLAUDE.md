@@ -34,7 +34,15 @@ Most specs stub HTTP with WebMock. In those specs, `use_stubbed_printer` configu
 3. Run the spec. With `:wip`, requests reach the printer and the cassette is recorded again from scratch (`record: :all`). If the spec fails, nothing is written. A `:wip` example without a `vcr:` option reaches the printer without recording anything.
 4. Remove the `:wip` tag. Future runs replay the cassette and never touch the network (`record: :none`), so CI doesn't need a printer.
 
-Tests that change printer state, like uploading or deleting files, should do their own setup and teardown. That way you can delete a cassette and record it again.
+Tests that change printer state, like uploading or deleting files, should do their own setup and teardown. That way you can delete a cassette and record it again. In those hooks, `unrecorded { ... }` talks to the printer with its own client, without saving anything to the cassette, and `recording_cassette?` tells whether the example is recording.
+
+Write operations aren't recorded yet. See `TODO.md`: on MK4, XL and MINI firmware, every upload opens a print preview on the printer's screen that locks the file until someone closes it.
+
+If a recording run left `prusalink-gem-test.gcode` on the printer, delete it with the command below. If it answers `409 File is busy`, close the print preview on the printer's screen first.
+
+```bash
+bundle exec ruby -Ilib -rdotenv/load -rprusalink -e 'Prusalink.configure(host: ENV["PRUSALINK_HOST"], username: ENV["PRUSALINK_USERNAME"], password: ENV["PRUSALINK_PASSWORD"]); Prusalink::Files.delete(storage: "usb", path: "prusalink-gem-test.gcode")'
+```
 
 VCR replaces the host, password and username with `<HOST>`, `<PASSWORD>` and `<USERNAME>`, the printer's serial number with `<SERIAL>`, and the hash in Digest `Authorization` headers with `<DIGEST>` (with the nonce, it would be enough to brute-force the password). `spec/integration/cassettes_spec.rb` fails if a cassette contains a serial number or a Digest hash. Cassettes record the 401 challenge and the signed retry. The cassettes were recorded on a Prusa XL while it was idle. Its USB drive had an empty `Single-Tool` folder and the SmartTemperatureTower calibration print at its root.
 

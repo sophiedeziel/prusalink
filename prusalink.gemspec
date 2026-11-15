@@ -22,12 +22,9 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = "https://github.com/sophiedeziel/prusalink"
   spec.metadata["changelog_uri"] = "https://github.com/sophiedeziel/prusalink/blob/main/CHANGELOG.md"
 
-  # Specify which files should be added to the gem when it is released.
-  # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
+  # Ship only the library and its docs: specs, Sorbet RBIs and dev tooling stay in the repo
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    `git ls-files -z`.split("\x0").reject do |f|
-      (f == __FILE__) || f.match(%r{\A(?:(?:test|spec|features)/|\.(?:git|travis|circleci)|appveyor)})
-    end
+    `git ls-files -z lib README.md CHANGELOG.md LICENSE.txt`.split("\x0")
   end
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }

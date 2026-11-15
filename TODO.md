@@ -2,8 +2,9 @@
 
 ## Record VCR cassettes for write operations (needs someone at the printer)
 
-Every read-only endpoint has a cassette recorded against a Prusa XL (`spec/integration/printer_spec.rb`).
-The write operations don't yet: `spec/integration/file_writes_spec.rb` is skipped until they're recorded.
+Every read-only endpoint has a cassette recorded against a Prusa XL, in a `with a real printer` context of its class's spec.
+The write operations don't yet: `describe "writing to a real printer"` in `spec/prusalink/files_spec.rb` is skipped until
+they're recorded.
 
 ### Why it needs someone at the printer
 
@@ -34,7 +35,7 @@ Pick one:
   XL does when a print starts without homing. The first recording needs someone at the printer, with the bed clear,
   ready to press Stop.
 
-Whatever the choice, keep these safety rules, already enforced in `file_writes_spec.rb`:
+Whatever the choice, keep these safety rules, already enforced in `files_spec.rb`:
 
 - Only touch `prusalink-gem-test.gcode`, uploaded by the example itself. Never delete or overwrite anything else.
 - Before each example: the printer is idle, has no job, and the test file doesn't exist. Otherwise abort.
@@ -42,7 +43,7 @@ Whatever the choice, keep these safety rules, already enforced in `file_writes_s
   that the printer is idle and the file gone.
 - Any print we start is stopped by the test.
 
-`file_writes_spec.rb` currently closes the preview by stopping its job (`close_preview`), which only works when the
+`files_spec.rb` currently closes the preview by stopping its job (`close_preview`), which only works when the
 preview shows up as a job. Rework it for (a) or (b) before recording.
 
 ### Write operations still without a cassette

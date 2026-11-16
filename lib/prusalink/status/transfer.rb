@@ -10,7 +10,6 @@ module Prusalink
     #   transfer.progress         # => 65.82
     #   transfer.data_transferred # => 123084800
     class Transfer
-      extend T::Sig
       include AutoInitializable
       include Deserializable
 

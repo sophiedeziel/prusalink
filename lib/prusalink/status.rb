@@ -12,7 +12,6 @@ module Prusalink
   #   status.job&.progress       # => 42.0
   #   status.transfer            # => nil when nothing is being transferred
   class Status < BaseResource
-    extend T::Sig
     include AutoInitializable
     include Deserializable
 
@@ -56,7 +55,7 @@ module Prusalink
     #
     # @return [Status, nil] nil when the printer answers 204 No Content
     # @raise [Prusalink::Exceptions::Error] if the request fails
-    sig { returns(T.nilable(Status)) }
+    #: -> Status?
     def self.get
       fetch_resource
     end

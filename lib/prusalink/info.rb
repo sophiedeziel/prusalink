@@ -10,7 +10,6 @@ module Prusalink
   #   info.nozzle_diameter # => 0.4
   #   info.mmu             # => false
   class Info < BaseResource
-    extend T::Sig
     include AutoInitializable
     include Deserializable
 
@@ -74,7 +73,7 @@ module Prusalink
     #
     # @return [Info, nil] nil when the printer answers 204 No Content
     # @raise [Prusalink::Exceptions::Error] if the request fails
-    sig { returns(T.nilable(Info)) }
+    #: -> Info?
     def self.get
       fetch_resource
     end

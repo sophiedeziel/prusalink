@@ -10,7 +10,6 @@ module Prusalink
     #   storage.name       # => "LOCAL"
     #   storage.free_space # => 4202335
     class Storage
-      extend T::Sig
       include AutoInitializable
       include Deserializable
 

@@ -10,7 +10,6 @@ module Prusalink
   #   usb.available? # => true
   #   usb.free_space # => 1921681142
   class Storage < BaseResource
-    extend T::Sig
     include AutoInitializable
     include Deserializable
 
@@ -66,20 +65,20 @@ module Prusalink
     #
     # @return [Array<Storage>]
     # @raise [Prusalink::Exceptions::Error] if the request fails
-    sig { returns(T::Array[Storage]) }
+    #: -> Array[Storage]
     def self.list
       response = fetch_resource(deserialize: false)
       Array(response&.fetch(:storage_list, nil)).map { |storage| deserialize(storage) }
     end
 
     # @return [Boolean] whether the storage is available
-    sig { returns(T::Boolean) }
+    #: -> bool
     def available?
       available == true
     end
 
     # @return [Boolean] whether the storage is read only
-    sig { returns(T::Boolean) }
+    #: -> bool
     def read_only?
       read_only == true
     end

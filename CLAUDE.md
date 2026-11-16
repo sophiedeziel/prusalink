@@ -11,11 +11,21 @@ The gem mirrors the architecture of the `octoprint` gem (github.com/sophiedeziel
 - `Prusalink::BaseResource` is the parent of every endpoint class (`resource_path`, `fetch_resource`, `post`, `put`, `patch`, `delete`, `head`).
 - `AutoInitializable` (`auto_attr` + `auto_initialize!`) and `Deserializable` (`deserialize_config`) build typed value objects from API hashes. Every object has `auto_attr :extra, type: Hash`, which collects unknown fields.
 - The client is stored per thread (`Prusalink.client`). `client.use { ... }` temporarily swaps it.
-- `lib/tapioca/dsl/compilers/auto_initializable.rb` generates RBI signatures for `auto_attr` readers. Run `bin/tapioca dsl` after adding or changing attributes.
+- `lib/tapioca/dsl/compilers/auto_initializable.rb` generates RBI signatures for `auto_attr` readers. Run `bin/tapioca dsl` after adding or changing attributes. It isn't shipped in the gem.
 
 The API reference is the OpenAPI spec in prusa3d/Prusa-Link-Web (`spec/openapi.yaml`). It is AGPL, so don't copy it into this repo.
 
 API names that clash with Ruby or read confusingly are renamed: `type` becomes `storage_type` / `file_type` / `transfer_type`.
+
+## Type signatures (RBS comments)
+
+Method signatures are inline RBS comments that Sorbet checks statically. They don't run at runtime, which is on purpose: the gem does no runtime type checking in production.
+
+- Write `#: (String, ?force: bool) -> bool` directly above the `def`. Use `#|` to continue a long signature over several lines. Don't use `sig { ... }` blocks or `extend T::Sig`.
+- Keep the YARD doc comment directly above the `#:` line with no blank line between them. `.yard/rbs_comments.rb` strips the signature out of the generated docs. `bundle exec yard stats --list-undoc` should stay at 100%.
+- After changing a public signature or an `auto_attr`, run `bin/tapioca dsl` and then `bundle exec rake rbi:export` to regenerate `rbi/`. It holds the RBS signatures exported by Spoom (`rbi/prusalink.rbi`) and a copy of the Tapioca DSL RBIs for `auto_attr` readers (`rbi/prusalink/**`), with superclasses added so the files merge without conflicts. The gem ships this folder so Tapioca can type the gem in apps that use Sorbet, and CI (`bundle exec rake rbi:check`) fails when it's out of date.
+- Tapioca turns the `#:` comments into runtime signatures when it loads the gem, and sorbet-runtime checks overrides. A method that overrides its parent with a different signature, like `Files.delete`, needs `# @override(allow_incompatible: true)` above its `#:` line, or apps get it untyped.
+- `bundle exec spoom srb sigs translate` converts `sig` blocks to RBS comments if you paste in old-style code.
 
 ## Tests
 
@@ -49,8 +59,9 @@ VCR replaces the host, password and username with `<HOST>`, `<PASSWORD>` and `<U
 ## Quality gates
 
 ```bash
-bin/check            # rspec + rubocop + sorbet
-bin/tapioca dsl      # regenerate RBIs after changing auto_attr declarations
+bin/check                     # rspec + rubocop + sorbet + rbi:check
+bin/tapioca dsl               # regenerate RBIs after changing auto_attr declarations
+bundle exec rake rbi:export   # regenerate rbi/ after changing a signature or an auto_attr
 ```
 
 - Coverage must stay at 100% (SimpleCov `minimum_coverage 100`). Always run the full suite to measure it.

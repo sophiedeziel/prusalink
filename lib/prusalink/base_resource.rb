@@ -5,12 +5,10 @@ module Prusalink
   # Base class for all API resources.
   class BaseResource
     class << self
-      extend T::Sig
-
       # Defines the path for the resource's endpoint
       #
       # @param [String] path      The API's endpoint path
-      sig { params(path: String).void }
+      #: (String path) -> void
       def resource_path(path)
         @path = path
       end
@@ -32,38 +30,44 @@ module Prusalink
       end
 
       # Sends a POST request to the resource's endpoint.
-      sig do
-        params(path: String, params: T.untyped, headers: T::Hash[T.any(String, Symbol), String]).returns(T.untyped)
-      end
+      #: (
+      #|   ?path: String,
+      #|   ?params: untyped,
+      #|   ?headers: Hash[(String | Symbol), String]
+      #| ) -> untyped
       def post(path: @path, params: nil, headers: {})
         client.request(path, http_method: :post, body: params, headers: headers)
       end
 
       # Sends a PUT request to the resource's endpoint. `params` may be a Hash (sent as JSON),
       # a String or an IO (sent as-is).
-      sig do
-        params(path: String, params: T.untyped, headers: T::Hash[T.any(String, Symbol), String]).returns(T.untyped)
-      end
+      #: (
+      #|   ?path: String,
+      #|   ?params: untyped,
+      #|   ?headers: Hash[(String | Symbol), String]
+      #| ) -> untyped
       def put(path: @path, params: nil, headers: {})
         client.request(path, http_method: :put, body: params, headers: headers)
       end
 
       # Sends a PATCH request to the resource's endpoint.
-      sig do
-        params(path: String, params: T.untyped, headers: T::Hash[T.any(String, Symbol), String]).returns(T.untyped)
-      end
+      #: (
+      #|   ?path: String,
+      #|   ?params: untyped,
+      #|   ?headers: Hash[(String | Symbol), String]
+      #| ) -> untyped
       def patch(path: @path, params: nil, headers: {})
         client.request(path, http_method: :patch, body: params, headers: headers)
       end
 
       # Sends a DELETE request to the resource's endpoint.
-      sig { params(path: String, headers: T::Hash[T.any(String, Symbol), String]).returns(T.untyped) }
+      #: (?path: String, ?headers: Hash[(String | Symbol), String]) -> untyped
       def delete(path: @path, headers: {})
         client.request(path, http_method: :delete, headers: headers)
       end
 
       # Sends a HEAD request to the resource's endpoint and returns the response headers.
-      sig { params(path: String).returns(T::Hash[String, String]) }
+      #: (?path: String) -> Hash[String, String]
       def head(path: @path)
         client.head(path)
       end
@@ -78,7 +82,7 @@ module Prusalink
 
       private
 
-      sig { returns(Client) }
+      #: -> Client
       def client
         client = Prusalink.client
         raise Exceptions::NotConfiguredError, "No client configured. Use Prusalink.configure" unless client

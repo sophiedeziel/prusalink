@@ -22,8 +22,6 @@ module Prusalink
   # @attr [Numeric, nil] open_timeout  Seconds to wait for the connection to open
   # @attr [Numeric, nil] timeout       Seconds to wait for a read or a write
   class Client
-    extend T::Sig
-
     # PrusaLink's default username for Digest authentication
     DEFAULT_USERNAME = "maker"
     # Default number of seconds to wait for the connection to open
@@ -31,6 +29,7 @@ module Prusalink
     # Default number of seconds to wait for a read or a write. Printers on Wi-Fi can be slow.
     DEFAULT_TIMEOUT = 10
 
+    # Exception raised for each HTTP error status. Other error statuses raise {Exceptions::UnknownError}.
     ERRORS = T.let({
       400 => Exceptions::BadRequestError,
       401 => Exceptions::AuthenticationError,
@@ -52,16 +51,14 @@ module Prusalink
     # @param open_timeout [Numeric, nil]   Seconds to wait for the connection to open
     # @param timeout [Numeric, nil]        Seconds to wait for a read or a write
     # @raise [Exceptions::MissingCredentialsError] if host is missing, or both password and api_key are missing
-    sig do
-      params(
-        host: T.nilable(T.any(String, URI::Generic)),
-        password: T.nilable(String),
-        username: String,
-        api_key: T.nilable(String),
-        open_timeout: T.nilable(Numeric),
-        timeout: T.nilable(Numeric)
-      ).void
-    end
+    #: (
+    #|   host: (String | URI::Generic)?,
+    #|   ?password: String?,
+    #|   ?username: String,
+    #|   ?api_key: String?,
+    #|   ?open_timeout: Numeric?,
+    #|   ?timeout: Numeric?
+    #| ) -> void
     def initialize(host:, password: nil, username: DEFAULT_USERNAME, api_key: nil,
                    open_timeout: DEFAULT_OPEN_TIMEOUT, timeout: DEFAULT_TIMEOUT)
       raise Exceptions::MissingCredentialsError if host.nil? || (password.nil? && api_key.nil?)
@@ -87,14 +84,12 @@ module Prusalink
     # @raise [Exceptions::TimeoutError] if the printer doesn't respond within the configured timeouts
     # @raise [Exceptions::ConnectionError] if the printer can't be reached
     # @raise [Exceptions::InvalidResponseError] if the printer answers with invalid JSON
-    sig do
-      params(
-        path: String,
-        http_method: Symbol,
-        body: T.untyped,
-        headers: T::Hash[T.any(String, Symbol), String]
-      ).returns(T.untyped)
-    end
+    #: (
+    #|   String path,
+    #|   ?http_method: Symbol,
+    #|   ?body: untyped,
+    #|   ?headers: Hash[(String | Symbol), String]
+    #| ) -> untyped
     def request(path, http_method: :get, body: nil, headers: {})
       response = perform(http_method, path, body, headers)
 
@@ -110,7 +105,7 @@ module Prusalink
     # @param path [String] the path of the request
     # @return [Hash{String => String}] the response headers, with lowercase names
     # @raise [Exceptions::Error] a subclass matching the HTTP status when the request fails
-    sig { params(path: String).returns(T::Hash[String, String]) }
+    #: (String path) -> Hash[String, String]
     def head(path)
       response = perform(:head, path, nil, {})
       process_error(response) if response.status >= 400
@@ -123,7 +118,7 @@ module Prusalink
     #
     # @example
     #   mk4.use { Prusalink::Status.get }
-    sig { params(block: T.proc.returns(T.untyped)).returns(T.untyped) }
+    #: { -> untyped } -> untyped
     def use(&block)
       previous_client = Prusalink.client
       Prusalink.client = self

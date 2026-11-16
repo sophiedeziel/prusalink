@@ -16,9 +16,7 @@ module Prusalink
   #     f.use Prusalink::DigestAuth, "maker", "password"
   #   end
   class DigestAuth < Faraday::Middleware
-    extend T::Sig
-
-    sig { params(app: T.untyped, username: String, password: String).void }
+    #: (untyped app, String username, String password) -> void
     def initialize(app, username, password)
       super(app)
       @username  = username
@@ -28,6 +26,12 @@ module Prusalink
       @mutex     = Mutex.new
     end
 
+    # Sends the request, signed with the stored challenge if there is one, and retries it once
+    # signed when the printer answers with a new Digest challenge.
+    #
+    # @param env [Faraday::Env] the request
+    # @return [Faraday::Response] the response to the signed request
+    #: (Faraday::Env env) -> Faraday::Response
     def call(env)
       request_body = env.body
       preflight(env) if request_body.respond_to?(:read) && @challenge.nil?

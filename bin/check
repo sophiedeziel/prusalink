@@ -4,3 +4,4 @@ set -e
 bundle exec rspec
 bundle exec rubocop
 bundle exec srb tc
+bundle exec rake rbi:check

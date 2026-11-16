@@ -22,9 +22,13 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = "https://github.com/sophiedeziel/prusalink"
   spec.metadata["changelog_uri"] = "https://github.com/sophiedeziel/prusalink/blob/main/CHANGELOG.md"
 
-  # Ship only the library and its docs: specs, Sorbet RBIs and dev tooling stay in the repo
-  spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    `git ls-files -z lib README.md CHANGELOG.md LICENSE.txt`.split("\x0")
+  # Ship only the library, its docs and the exported Sorbet RBIs (rbi/, picked up by Tapioca in apps
+  # that use Sorbet). Specs and dev tooling stay in the repo. lib/tapioca/ is a Tapioca DSL compiler
+  # used to generate RBIs from the repo; rbi/ already holds what it generates, so apps don't need it.
+  # Globs rather than `git ls-files`: `rake rbi:export` loads this gemspec from a copy outside the repo.
+  spec.files = Dir.chdir(__dir__) do
+    Dir["lib/**/*.rb", "rbi/**/*.rbi", "README.md", "LICENSE.txt", "CHANGELOG.md"]
+      .reject { |f| f.start_with?("lib/tapioca/") }
   end
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }

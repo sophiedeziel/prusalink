@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+- Write method signatures as inline RBS comments instead of `sig` blocks. Sorbet still checks them statically, but nothing is type-checked at runtime anymore, so a wrong argument type no longer raises a `TypeError` up front
+- Ship `rbi/` in the gem: the exported signatures and the typed `auto_attr` readers, which Tapioca picks up in apps that use Sorbet
+- Stop shipping the Tapioca DSL compiler (`lib/tapioca/`). `rbi/` already holds what it generates
+
 ## [0.1.1] - 2026-11-15
 
 - Fix `Files::File#read_only` and `Files::Folder#read_only`, which were always `nil` on MK4, XL and MINI firmware. It sends `ro` instead of `read_only`

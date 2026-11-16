@@ -10,7 +10,6 @@ module Prusalink
   #   version.firmware # => "6.1.3+8098"
   #   version.upload_by_put? # => true
   class ServerVersion < BaseResource
-    extend T::Sig
     include AutoInitializable
     include Deserializable
 
@@ -68,7 +67,7 @@ module Prusalink
     #
     # @return [ServerVersion]
     # @raise [Prusalink::Exceptions::Error] if the request fails
-    sig { returns(ServerVersion) }
+    #: -> ServerVersion
     def self.get
       fetch_resource
     end
@@ -76,7 +75,7 @@ module Prusalink
     # Whether the printer accepts uploads with PUT /api/v1/files (see {Files.upload})
     #
     # @return [Boolean]
-    sig { returns(T::Boolean) }
+    #: -> bool
     def upload_by_put?
       capabilities&.fetch(:upload_by_put, false) == true
     end

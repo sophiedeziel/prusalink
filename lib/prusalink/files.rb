@@ -20,8 +20,6 @@ module Prusalink
   #   Prusalink::Files.exists?(storage: "usb", path: "prints/benchy.gcode") # => true
   #   Prusalink::Files.delete(storage: "usb", path: "prints/benchy.gcode")
   class Files < BaseResource
-    extend T::Sig
-
     resource_path("/api/v1/files")
 
     # Gets the metadata of a file, or a folder with its content.
@@ -30,7 +28,7 @@ module Prusalink
     # @param path [String]      path to the file or folder. Defaults to the storage's root
     # @return [Files::File, Files::Folder]
     # @raise [Prusalink::Exceptions::NotFoundError] if the file doesn't exist
-    sig { params(storage: String, path: String).returns(T.any(Files::File, Files::Folder)) }
+    #: (storage: String, ?path: String) -> (Files::File | Files::Folder)
     def self.get(storage:, path: "")
       build_entry(client.request(file_path(storage, path), http_method: :get))
     end
@@ -51,15 +49,13 @@ module Prusalink
     # @return [true]
     # @raise [Prusalink::Exceptions::ConflictError] if the file already exists and overwrite is false
     # @raise [ArgumentError] if the IO doesn't know its size (e.g. a pipe)
-    sig do
-      params(
-        file: T.any(String, IO, StringIO, Tempfile),
-        storage: String,
-        path: String,
-        print_after_upload: T::Boolean,
-        overwrite: T::Boolean
-      ).returns(T::Boolean)
-    end
+    #: (
+    #|   (String | IO | StringIO | Tempfile) file,
+    #|   storage: String,
+    #|   path: String,
+    #|   ?print_after_upload: bool,
+    #|   ?overwrite: bool
+    #| ) -> bool
     def self.upload(file, storage:, path:, print_after_upload: false, overwrite: false)
       destination = file_path(storage, path)
       headers = {
@@ -81,7 +77,7 @@ module Prusalink
     # @param path [String]      path to the file
     # @return [true]
     # @raise [Prusalink::Exceptions::ConflictError] if the printer is busy
-    sig { params(storage: String, path: String).returns(T::Boolean) }
+    #: (storage: String, path: String) -> bool
     def self.print(storage:, path:)
       post(path: file_path(storage, path))
     end
@@ -89,18 +85,20 @@ module Prusalink
     # Deletes a file or a folder.
     #
     # Replaces {BaseResource.delete} with a signature that fits files, then calls it with the built path and
-    # headers. The signatures differ on purpose, hence `allow_incompatible`.
+    # headers. The signatures differ on purpose, hence `allow_incompatible`. Without it, Tapioca can't build a
+    # runtime signature for this method and types it as untyped in apps that use Sorbet.
     #
     # @param storage [String]   the storage's name, e.g. "usb"
     # @param path [String]      path to the file or folder
     # @param force [Boolean]    whether to delete a folder that isn't empty
     # @return [true]
     # @raise [Prusalink::Exceptions::ConflictError] if the file is being printed, or the folder isn't empty
-    sig do
-      override(allow_incompatible: true)
-        .params(storage: String, path: String, force: T::Boolean)
-        .returns(T::Boolean)
-    end
+    # @override(allow_incompatible: true)
+    #: (
+    #|   storage: String,
+    #|   path: String,
+    #|   ?force: bool
+    #| ) -> bool
     def self.delete(storage:, path:, force: false)
       super(path: file_path(storage, path), headers: { "Force" => structured_boolean(force) })
     end
@@ -110,7 +108,7 @@ module Prusalink
     # @param storage [String]   the storage's name, e.g. "usb"
     # @param path [String]      path to the file or folder
     # @return [Boolean]
-    sig { params(storage: String, path: String).returns(T::Boolean) }
+    #: (storage: String, path: String) -> bool
     def self.exists?(storage:, path:)
       head(path: file_path(storage, path))
       true
@@ -128,7 +126,7 @@ module Prusalink
     # @param path [String]      path to the file or folder
     # @return [Hash{Symbol => Boolean}]
     # @raise [Prusalink::Exceptions::NotFoundError] if the file doesn't exist
-    sig { params(storage: String, path: String).returns(T::Hash[Symbol, T::Boolean]) }
+    #: (storage: String, path: String) -> Hash[Symbol, bool]
     def self.info(storage:, path:)
       headers = head(path: file_path(storage, path))
 
@@ -145,7 +143,7 @@ module Prusalink
     # @param data [Hash] a file or folder, as returned by the API
     # @return [Files::File, Files::Folder]
     # @api private
-    sig { params(data: T::Hash[Symbol, T.untyped]).returns(T.any(Files::File, Files::Folder)) }
+    #: (Hash[Symbol, untyped] data) -> (Files::File | Files::Folder)
     def self.build_entry(data)
       data[:type] == "FOLDER" ? Files::Folder.deserialize(data) : Files::File.deserialize(data)
     end
@@ -153,14 +151,14 @@ module Prusalink
     # Builds the request path, e.g. ("/usb/", "/my prints/benchy (1).gcode")
     # gives "/api/v1/files/usb/my%20prints/benchy%20%281%29.gcode".
     # Every segment is URL-encoded (spaces as %20, parentheses as %28 and %29), slashes are kept.
-    sig { params(storage: String, path: String).returns(String) }
+    #: (String storage, String path) -> String
     private_class_method def self.file_path(storage, path)
       segments = [storage, path].flat_map { |part| part.split("/") }.reject(&:empty?)
 
       [@path, *segments.map { |segment| ERB::Util.url_encode(segment) }].join("/")
     end
 
-    sig { params(io: T.any(IO, StringIO, Tempfile), path: String, headers: T::Hash[String, String]).returns(T::Boolean) }
+    #: ((IO | StringIO | Tempfile) io, String path, Hash[String, String] headers) -> bool
     private_class_method def self.upload_io(io, path, headers)
       # PrusaLink requires a Content-Length, so the IO must know its size (File, StringIO, Tempfile).
       # A pipe or a socket doesn't.
@@ -174,13 +172,13 @@ module Prusalink
     end
 
     # RFC 8941 boolean, the format PrusaLink expects in its headers
-    sig { params(value: T::Boolean).returns(String) }
+    #: (bool value) -> String
     private_class_method def self.structured_boolean(value)
       value ? "?1" : "?0"
     end
 
     # PrusaLink sends booleans in headers as "true"/"false" or as RFC 8941 booleans ("?1"/"?0")
-    sig { params(value: T.nilable(String)).returns(T::Boolean) }
+    #: (String? value) -> bool
     private_class_method def self.header_true?(value)
       %w[true ?1 1].include?(value.to_s.strip.downcase)
     end

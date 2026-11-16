@@ -23,6 +23,10 @@ RSpec.describe Prusalink do
       expect(described_class.client).to have_attributes(api_key: "key", username: "admin",
                                                         open_timeout: 1, timeout: 2)
     end
+
+    it "returns nil" do
+      expect(described_class.configure(host: "http://printer.test", password: "secret")).to be_nil
+    end
   end
 
   describe ".client" do

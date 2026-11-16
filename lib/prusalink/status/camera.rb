@@ -8,7 +8,6 @@ module Prusalink
     # @example
     #   Prusalink::Status.get.camera&.id # => "Ba1kmCbifTa8X"
     class Camera
-      extend T::Sig
       include AutoInitializable
       include Deserializable
 

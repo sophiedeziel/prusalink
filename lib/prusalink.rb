@@ -9,9 +9,6 @@ loader = Zeitwerk::Loader.for_gem
 loader.ignore("#{__dir__}/tapioca")
 loader.setup
 
-# Load Tapioca compiler if available
-require_relative "tapioca/dsl/compilers/auto_initializable" if defined?(Tapioca)
-
 # Ruby client for PrusaLink, the local REST API of Prusa 3D printers.
 #
 # @example Configure the gem once, then call resources
@@ -21,8 +18,6 @@ require_relative "tapioca/dsl/compilers/auto_initializable" if defined?(Tapioca)
 # @attr [Prusalink::Client] client      The configured API client
 module Prusalink
   class << self
-    extend T::Sig
-
     # Configure the API client with the printer's address and credentials.
     #
     # PrusaLink uses HTTP Digest authentication. The username is "maker" by default and the
@@ -42,16 +37,14 @@ module Prusalink
     # @param [Numeric, nil] open_timeout    Seconds to wait for the connection to open
     # @param [Numeric, nil] timeout         Seconds to wait for a read or a write
     # @return [nil]
-    sig do
-      params(
-        host: String,
-        password: T.nilable(String),
-        username: String,
-        api_key: T.nilable(String),
-        open_timeout: T.nilable(Numeric),
-        timeout: T.nilable(Numeric)
-      ).void
-    end
+    #: (
+    #|   host: String,
+    #|   ?password: String?,
+    #|   ?username: String,
+    #|   ?api_key: String?,
+    #|   ?open_timeout: Numeric?,
+    #|   ?timeout: Numeric?
+    #| ) -> void
     def configure(host:, password: nil, username: Client::DEFAULT_USERNAME, api_key: nil,
                   open_timeout: Client::DEFAULT_OPEN_TIMEOUT, timeout: Client::DEFAULT_TIMEOUT)
       self.client = Client.new(host: host, password: password, username: username, api_key: api_key,
@@ -62,14 +55,14 @@ module Prusalink
 
     # The API client used for the requests in the current thread
     # @return [Client, nil]
-    sig { returns(T.nilable(Client)) }
+    #: -> Client?
     def client
       Thread.current[:prusalink_client]
     end
 
     # Sets the API client used for the requests in the current thread
     # @param [Client, nil] client
-    sig { params(client: T.nilable(Client)).void }
+    #: (Client? client) -> void
     def client=(client)
       Thread.current[:prusalink_client] = client
     end

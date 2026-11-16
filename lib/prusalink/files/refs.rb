@@ -10,7 +10,6 @@ module Prusalink
     #   file.refs.download  # => "/usb/benchy.gcode"
     #   file.refs.thumbnail # => "/thumb/l/usb/benchy.gcode"
     class Refs
-      extend T::Sig
       include AutoInitializable
       include Deserializable
 

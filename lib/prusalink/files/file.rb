@@ -11,7 +11,6 @@ module Prusalink
     #   file.display_name              # => "benchy_0.4n_0.2mm_PLA_MK4_1h2m.gcode"
     #   file.meta[:"filament used [g]"] # => 15.42
     class File
-      extend T::Sig
       include AutoInitializable
       include Deserializable
 
@@ -63,7 +62,7 @@ module Prusalink
       # Whether the file can be printed (G-code, binary G-code or SL1)
       #
       # @return [Boolean]
-      sig { returns(T::Boolean) }
+      #: -> bool
       def print_file?
         file_type == "PRINT_FILE"
       end
@@ -71,7 +70,7 @@ module Prusalink
       # Whether the file is a firmware file
       #
       # @return [Boolean]
-      sig { returns(T::Boolean) }
+      #: -> bool
       def firmware?
         file_type == "FIRMWARE"
       end
@@ -79,7 +78,7 @@ module Prusalink
       # Always false, see {Files::Folder#folder?}
       #
       # @return [Boolean]
-      sig { returns(T::Boolean) }
+      #: -> bool
       def folder?
         false
       end

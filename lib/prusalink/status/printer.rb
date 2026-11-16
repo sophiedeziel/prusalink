@@ -11,7 +11,6 @@ module Prusalink
     #   printer.printing?  # => true
     #   printer.temp_bed   # => 59.5
     class Printer
-      extend T::Sig
       include AutoInitializable
       include Deserializable
 
@@ -79,55 +78,55 @@ module Prusalink
       auto_initialize!
 
       # @return [Boolean] true when the state is "IDLE"
-      sig { returns(T::Boolean) }
+      #: -> bool
       def idle?
         state == "IDLE"
       end
 
       # @return [Boolean] true when the state is "BUSY"
-      sig { returns(T::Boolean) }
+      #: -> bool
       def busy?
         state == "BUSY"
       end
 
       # @return [Boolean] true when the state is "PRINTING"
-      sig { returns(T::Boolean) }
+      #: -> bool
       def printing?
         state == "PRINTING"
       end
 
       # @return [Boolean] true when the state is "PAUSED"
-      sig { returns(T::Boolean) }
+      #: -> bool
       def paused?
         state == "PAUSED"
       end
 
       # @return [Boolean] true when the state is "FINISHED"
-      sig { returns(T::Boolean) }
+      #: -> bool
       def finished?
         state == "FINISHED"
       end
 
       # @return [Boolean] true when the state is "STOPPED"
-      sig { returns(T::Boolean) }
+      #: -> bool
       def stopped?
         state == "STOPPED"
       end
 
       # @return [Boolean] true when the state is "ERROR"
-      sig { returns(T::Boolean) }
+      #: -> bool
       def error?
         state == "ERROR"
       end
 
       # @return [Boolean] true when the state is "ATTENTION" (the printer waits for user input)
-      sig { returns(T::Boolean) }
+      #: -> bool
       def attention?
         state == "ATTENTION"
       end
 
       # @return [Boolean] true when the state is "READY"
-      sig { returns(T::Boolean) }
+      #: -> bool
       def ready?
         state == "READY"
       end

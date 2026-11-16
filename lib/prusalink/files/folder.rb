@@ -10,7 +10,6 @@ module Prusalink
     #   folder.children.select(&:print_file?).map(&:display_name) # => ["benchy.gcode"]
     #   folder.children.select(&:folder?).map(&:name)             # => ["prints"]
     class Folder
-      extend T::Sig
       include AutoInitializable
       include Deserializable
 
@@ -60,7 +59,7 @@ module Prusalink
       # Always false
       #
       # @return [Boolean]
-      sig { returns(T::Boolean) }
+      #: -> bool
       def print_file?
         false
       end
@@ -68,7 +67,7 @@ module Prusalink
       # Always false
       #
       # @return [Boolean]
-      sig { returns(T::Boolean) }
+      #: -> bool
       def firmware?
         false
       end
@@ -76,7 +75,7 @@ module Prusalink
       # Always true
       #
       # @return [Boolean]
-      sig { returns(T::Boolean) }
+      #: -> bool
       def folder?
         true
       end

@@ -14,7 +14,6 @@ module Prusalink
   # @example Control a job by id
   #   Prusalink::Job.stop(420)
   class Job < BaseResource
-    extend T::Sig
     include AutoInitializable
     include Deserializable
 
@@ -63,13 +62,11 @@ module Prusalink
     end
 
     class << self
-      extend T::Sig
-
       # Retrieve the current job.
       #
       # @return [Job, nil] nil when there is no job (the printer answers 204 No Content)
       # @raise [Prusalink::Exceptions::Error] if the request fails
-      sig { returns(T.nilable(Job)) }
+      #: -> Job?
       def get
         fetch_resource
       end
@@ -80,7 +77,7 @@ module Prusalink
       # @return [Boolean] true on success
       # @raise [Prusalink::Exceptions::NotFoundError] if no job has this id
       # @raise [Prusalink::Exceptions::ConflictError] if the job can't be stopped in its current state
-      sig { params(id: Integer).returns(T::Boolean) }
+      #: (Integer id) -> bool
       def stop(id)
         delete(path: job_path(id))
       end
@@ -91,7 +88,7 @@ module Prusalink
       # @return [Boolean] true on success
       # @raise [Prusalink::Exceptions::NotFoundError] if no job has this id
       # @raise [Prusalink::Exceptions::ConflictError] if the job can't be paused in its current state
-      sig { params(id: Integer).returns(T::Boolean) }
+      #: (Integer id) -> bool
       def pause(id)
         put(path: job_path(id, "pause"))
       end
@@ -102,7 +99,7 @@ module Prusalink
       # @return [Boolean] true on success
       # @raise [Prusalink::Exceptions::NotFoundError] if no job has this id
       # @raise [Prusalink::Exceptions::ConflictError] if the job isn't paused
-      sig { params(id: Integer).returns(T::Boolean) }
+      #: (Integer id) -> bool
       def resume(id)
         put(path: job_path(id, "resume"))
       end
@@ -113,14 +110,14 @@ module Prusalink
       # @return [Boolean] true on success
       # @raise [Prusalink::Exceptions::NotFoundError] if no job has this id
       # @raise [Prusalink::Exceptions::ConflictError] if the job isn't waiting to continue
-      sig { params(id: Integer).returns(T::Boolean) }
+      #: (Integer id) -> bool
       def continue(id)
         put(path: job_path(id, "continue"))
       end
 
       private
 
-      sig { params(id: Integer, action: T.nilable(String)).returns(String) }
+      #: (Integer id, ?String? action) -> String
       def job_path(id, action = nil)
         ["/api/v1/job", id, action].compact.join("/")
       end
@@ -129,7 +126,7 @@ module Prusalink
     # Stop this job. See {Job.stop}.
     #
     # @return [Boolean] true on success
-    sig { returns(T::Boolean) }
+    #: -> bool
     def stop
       self.class.stop(T.must(id))
     end
@@ -137,7 +134,7 @@ module Prusalink
     # Pause this job. See {Job.pause}.
     #
     # @return [Boolean] true on success
-    sig { returns(T::Boolean) }
+    #: -> bool
     def pause
       self.class.pause(T.must(id))
     end
@@ -145,7 +142,7 @@ module Prusalink
     # Resume this job. See {Job.resume}.
     #
     # @return [Boolean] true on success
-    sig { returns(T::Boolean) }
+    #: -> bool
     def resume
       self.class.resume(T.must(id))
     end
@@ -153,37 +150,37 @@ module Prusalink
     # Continue this job after a timelapse capture. See {Job.continue}.
     #
     # @return [Boolean] true on success
-    sig { returns(T::Boolean) }
+    #: -> bool
     def continue
       self.class.continue(T.must(id))
     end
 
     # @return [Boolean] whether the job is printing
-    sig { returns(T::Boolean) }
+    #: -> bool
     def printing?
       state == "PRINTING"
     end
 
     # @return [Boolean] whether the job is paused
-    sig { returns(T::Boolean) }
+    #: -> bool
     def paused?
       state == "PAUSED"
     end
 
     # @return [Boolean] whether the job has finished
-    sig { returns(T::Boolean) }
+    #: -> bool
     def finished?
       state == "FINISHED"
     end
 
     # @return [Boolean] whether the job was stopped
-    sig { returns(T::Boolean) }
+    #: -> bool
     def stopped?
       state == "STOPPED"
     end
 
     # @return [Boolean] whether the job ended in error
-    sig { returns(T::Boolean) }
+    #: -> bool
     def error?
       state == "ERROR"
     end

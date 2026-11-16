@@ -9,7 +9,8 @@ Same architecture as the [`octoprint`](https://github.com/sophiedeziel/octoprint
 ## ✨ Key Features
 
 - **🔐 Digest auth built in**: PrusaLink uses HTTP Digest authentication, and the gem handles the challenge, nonce rotation and retries for you. API keys (older firmware) work too.
-- **🛡️ Type Safety**: Sorbet signatures on every resource, and RBI files generated for every attribute
+- **🛡️ Type Safety**: Sorbet signatures on every resource, written as inline RBS comments (`#: (Integer id) -> bool`), so nothing is type-checked at runtime
+- **📦 Ships its own RBIs**: the `rbi/` folder is included in the gem, so Tapioca types every method and attribute in apps that use Sorbet
 - **🔥 Smart Error Handling**: HTTP statuses mapped to specific exception types
 - **🎯 Multi-Printer Support**: thread-local clients, and `client.use { }` to talk to several printers
 - **⚡ Modern Ruby**: Ruby 3.3+, Zeitwerk autoloading
@@ -156,6 +157,7 @@ All of them inherit from `Prusalink::Exceptions::Error`.
 bin/setup        # install dependencies
 bin/check        # rspec + rubocop + sorbet
 bin/tapioca dsl  # regenerate RBIs after changing auto_attr declarations
+bundle exec rake rbi:export  # regenerate the RBIs shipped in rbi/ after changing a signature or an auto_attr
 bin/console      # interactive prompt
 ```
 

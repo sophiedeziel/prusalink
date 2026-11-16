@@ -11,7 +11,6 @@ module Prusalink
     #   job.progress       # => 42.0
     #   job.time_remaining # => 520
     class Job
-      extend T::Sig
       include AutoInitializable
       include Deserializable
 

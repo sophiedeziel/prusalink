@@ -10,7 +10,6 @@ module Prusalink
     #   file.display_name # => "Spice_Harvester_0.3mm_PLA_MK3S_12m.gcode"
     #   file.full_path    # => "/usb/SPICE~1.gco"
     class File
-      extend T::Sig
       include AutoInitializable
       include Deserializable
 
@@ -61,7 +60,7 @@ module Prusalink
       #   file.full_path # => "/usb/SPICE~1.gco"
       #
       # @return [String]
-      sig { returns(String) }
+      #: -> String
       def full_path
         [path.to_s.chomp("/"), name].join("/")
       end

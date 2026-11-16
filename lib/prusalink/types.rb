@@ -2,7 +2,10 @@
 # frozen_string_literal: true
 
 module Prusalink
-  # Common type aliases for use with auto_attr and Sorbet signatures.
+  # Common type aliases for use with auto_attr.
+  #
+  # They are runtime values meant for auto_attr and Sorbet assertions. In RBS signature comments,
+  # write the type directly, e.g. `#: -> (Integer | Float)`.
   module Types
     # A hash with symbol keys and untyped values (common for API responses)
     Hash = T::Hash[Symbol, T.untyped]

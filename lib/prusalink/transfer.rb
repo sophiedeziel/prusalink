@@ -10,7 +10,6 @@ module Prusalink
   #   transfer.progress      # => 42.25
   #   transfer.stop
   class Transfer < BaseResource
-    extend T::Sig
     include AutoInitializable
     include Deserializable
 
@@ -77,7 +76,7 @@ module Prusalink
     #
     # @return [Transfer, nil] nil when nothing is transferring (the printer answers 204 No Content)
     # @raise [Prusalink::Exceptions::Error] if the request fails
-    sig { returns(T.nilable(Transfer)) }
+    #: -> Transfer?
     def self.get
       fetch_resource
     end
@@ -88,7 +87,7 @@ module Prusalink
     # @return [Boolean] true on success
     # @raise [Prusalink::Exceptions::NotFoundError] if no transfer has this id
     # @raise [Prusalink::Exceptions::ConflictError] if the transfer can't be stopped
-    sig { params(id: Integer).returns(T::Boolean) }
+    #: (Integer id) -> bool
     def self.stop(id)
       delete(path: "/api/v1/transfer/#{id}")
     end
@@ -97,7 +96,7 @@ module Prusalink
     #
     # @return [Boolean] true on success
     # @raise [ArgumentError] if the printer didn't report the transfer's id
-    sig { returns(T::Boolean) }
+    #: -> bool
     def stop
       transfer_id = id
       raise ArgumentError, "This transfer has no id. Use Transfer.stop with Status#transfer's id" if transfer_id.nil?
